@@ -15,4 +15,17 @@ defmodule Ae.AwesomeParserTest do
       assert match?({:ok, _}, AwesomeParser.download_file_for_repo("owner", "repo", "file"))
     end
   end
+
+  @readme_path "test/examples/awesome_elixir_test.md"
+  @start_anchor "- [Awesome Elixir](#awesome-elixir)"
+  @finish_anchor "- [Resources](#resources)"
+
+  describe "parse_categories/3" do
+    test "success" do
+      {:ok, categories} =
+        AwesomeParser.parse_categories(@readme_path, @start_anchor, @finish_anchor)
+
+      assert ["Category A", "Category B", "Category C"] == categories
+    end
+  end
 end

@@ -15,4 +15,36 @@ defmodule Ae.AwesomeParser do
       {:ok, tmp_path}
     end
   end
+
+  @spec parse_categories(
+          readme_md :: Path.t(),
+          start_anchor :: binary(),
+          finish_anchor :: binary()
+        ) :: {:ok, categories :: [binary()]}
+  def parse_categories(readme_md, start_anchor, finish_anchor) do
+    categories =
+      readme_md
+      |> File.stream!()
+      |> Stream.map(&String.trim/1)
+      |> Stream.reject(&String.equivalent?(&1, ""))
+      |> Enum.to_list()
+      |> Enum.reduce_while({[], false}, fn line, {acc, flag_parse} ->
+        cond do
+          String.equivalent?(line, start_anchor) ->
+            {:cont, {acc, true}}
+
+          String.equivalent?(line, finish_anchor) ->
+            {:halt, acc}
+
+          flag_parse ->
+            {:cont, {acc ++ [line], flag_parse}}
+
+          true ->
+            {:cont, {acc, flag_parse}}
+        end
+      end)
+      |> Enum.map(&String.replace(&1, ~r/(^\-\ \[)|(\]\(.*\))/, ""))
+
+    {:ok, categories}
+  end
 end
