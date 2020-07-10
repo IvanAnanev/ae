@@ -20,3 +20,5 @@ config :ae_web, AeWeb.Endpoint,
 
 # Print only warnings and errors during test
 config :logger, level: :warn
+
+config :ae, :github_api, Ae.AwesomeParser.GithubApi.Mock

@@ -39,7 +39,10 @@ defmodule Ae.MixProject do
       {:phoenix_pubsub, "~> 2.0"},
       {:ecto_sql, "~> 3.4"},
       {:postgrex, ">= 0.0.0"},
-      {:jason, "~> 1.0"}
+      {:jason, "~> 1.0"},
+      {:tentacat, "~> 2.0"},
+      {:briefly, "~> 0.3"},
+      {:mox, "~> 0.5", only: :test}
     ]
   end
 
