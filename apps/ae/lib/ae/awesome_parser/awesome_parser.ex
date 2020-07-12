@@ -16,6 +16,7 @@ defmodule Ae.AwesomeParser do
     end
   end
 
+  @category_name_regexp ~r/(^\-\ \[)|(\]\(.*\))/
   @spec parse_categories(
           readme_md :: Path.t(),
           start_anchor :: binary(),
@@ -40,7 +41,7 @@ defmodule Ae.AwesomeParser do
             {:cont, {acc, flag_parse}}
         end
       end)
-      |> Stream.map(&String.replace(&1, ~r/(^\-\ \[)|(\]\(.*\))/, ""))
+      |> Stream.map(&String.replace(&1, @category_name_regexp, ""))
       |> Enum.to_list()
 
     {:ok, categories}
@@ -73,6 +74,15 @@ defmodule Ae.AwesomeParser do
        description: String.replace(description, "*", ""),
        raw_libs: libs
      }}
+  end
+
+  @raw_lib_regexp ~r/^\*\ \[(?<name>.*)\]\((?<link>(https:\/\/github.com\/(?<owner>.*)\/(?<repo>.*))|.*)\)\ \-\ (?<description>.*)/
+  @spec parse_lib(raw_lib :: binary()) :: {:ok, map} | {:error, :parse_lib}
+  def parse_lib(raw_lib) do
+    case Regex.named_captures(@raw_lib_regexp, raw_lib) do
+      nil -> {:error, :parse_lib}
+      map -> {:ok, map}
+    end
   end
 
   defp stream_and_trim(readme_md) do

@@ -43,4 +43,40 @@ defmodule Ae.AwesomeParserTest do
              ] == result.raw_libs
     end
   end
+
+  describe "parse_raw_lib/1" do
+    test "github lib" do
+      {:ok, result} =
+        AwesomeParser.parse_lib(
+          "* [lib_c_1](https://github.com/owner_c_1/lib_c_1) - Description library C 1."
+        )
+
+      assert %{
+               "description" => "Description library C 1.",
+               "link" => "https://github.com/owner_c_1/lib_c_1",
+               "name" => "lib_c_1",
+               "owner" => "owner_c_1",
+               "repo" => "lib_c_1"
+             } == result
+    end
+
+    test "no github lib" do
+      {:ok, result} =
+        AwesomeParser.parse_lib(
+          "* [lib_c_1](https://hex.pm/packages/lib_c_1) - Description library C 1."
+        )
+
+      assert %{
+               "description" => "Description library C 1.",
+               "link" => "https://hex.pm/packages/lib_c_1",
+               "name" => "lib_c_1",
+               "owner" => "",
+               "repo" => ""
+             } == result
+    end
+
+    test "fail" do
+      assert {:error, :parse_lib} == AwesomeParser.parse_lib("no pattern string")
+    end
+  end
 end
