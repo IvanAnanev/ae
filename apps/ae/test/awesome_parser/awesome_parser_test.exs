@@ -28,4 +28,19 @@ defmodule Ae.AwesomeParserTest do
       assert ["Category A", "Category B", "Category C"] == categories
     end
   end
+
+  @category_name "Category C"
+
+  describe "parse_category/2" do
+    test "success" do
+      {:ok, result} = AwesomeParser.parse_category(@readme_path, @category_name)
+
+      assert "Category C description." == result.description
+
+      assert [
+               "* [lib_c_1](https://github.com/owner_c_1/lib_c_1) - Description library C 1.",
+               "* [lib_c_2](https://github.com/owner_c_2/lib_c_2) - Description library C 2."
+             ] == result.raw_libs
+    end
+  end
 end

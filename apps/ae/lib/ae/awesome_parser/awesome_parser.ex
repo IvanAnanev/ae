@@ -24,10 +24,7 @@ defmodule Ae.AwesomeParser do
   def parse_categories(readme_md, start_anchor, finish_anchor) do
     categories =
       readme_md
-      |> File.stream!()
-      |> Stream.map(&String.trim/1)
-      |> Stream.reject(&String.equivalent?(&1, ""))
-      |> Enum.to_list()
+      |> stream_and_trim()
       |> Enum.reduce_while({[], false}, fn line, {acc, flag_parse} ->
         cond do
           String.equivalent?(line, start_anchor) ->
@@ -43,8 +40,45 @@ defmodule Ae.AwesomeParser do
             {:cont, {acc, flag_parse}}
         end
       end)
-      |> Enum.map(&String.replace(&1, ~r/(^\-\ \[)|(\]\(.*\))/, ""))
+      |> Stream.map(&String.replace(&1, ~r/(^\-\ \[)|(\]\(.*\))/, ""))
+      |> Enum.to_list()
 
     {:ok, categories}
+  end
+
+  @spec parse_category(readme_md :: Path.t(), category_name :: binary()) :: {:ok, map()}
+  def parse_category(readme_md, category_name) do
+    [description | libs] =
+      readme_md
+      |> stream_and_trim()
+      |> Enum.reduce_while({[], false}, fn line, {acc, flag_parse} ->
+        cond do
+          String.equivalent?(line, "## #{category_name}") ->
+            {:cont, {acc, true}}
+
+          flag_parse && String.match?(line, ~r/^\#/) ->
+            {:halt, acc}
+
+          flag_parse ->
+            {:cont, {acc ++ [line], flag_parse}}
+
+          true ->
+            {:cont, {acc, flag_parse}}
+        end
+      end)
+      |> Enum.to_list()
+
+    {:ok,
+     %{
+       description: String.replace(description, "*", ""),
+       raw_libs: libs
+     }}
+  end
+
+  defp stream_and_trim(readme_md) do
+    readme_md
+    |> File.stream!()
+    |> Stream.map(&String.trim/1)
+    |> Stream.reject(&String.equivalent?(&1, ""))
   end
 end
