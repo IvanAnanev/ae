@@ -36,6 +36,13 @@ config :phoenix, :json_library, Jason
 # github access token
 config :ae, Ae.AwesomeParser.GithubApi, token: System.get_env("GITHUB_TOKEN")
 
+config :ae, Oban,
+  repo: Ae.Repo,
+  queues: [default: 10],
+  crontab: [
+    {"@daily", Ae.AwesomeParser.Workers.Schedule}
+  ]
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{Mix.env()}.exs"

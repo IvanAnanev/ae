@@ -44,7 +44,8 @@ defmodule Ae.MixProject do
       {:briefly, "~> 0.3"},
       {:mox, "~> 0.5", only: :test},
       {:ex_machina, "~> 2.4", only: :test},
-      {:ecto_enum, "~> 1.4.0"}
+      {:ecto_enum, "~> 1.4.0"},
+      {:oban, "~> 2.0.0"}
     ]
   end
 

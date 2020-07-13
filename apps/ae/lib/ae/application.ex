@@ -6,14 +6,14 @@ defmodule Ae.Application do
   use Application
 
   def start(_type, _args) do
-    children = [
-      # Start the Ecto repository
+    base = [
       Ae.Repo,
-      # Start the PubSub system
       {Phoenix.PubSub, name: Ae.PubSub}
-      # Start a worker by calling: Ae.Worker.start_link(arg)
-      # {Ae.Worker, arg}
     ]
+
+    oban = if System.get_env("WITH_OBAN"), do: [{Oban, Application.get_env(:ae, Oban)}], else: []
+
+    children = base ++ oban
 
     Supervisor.start_link(children, strategy: :one_for_one, name: Ae.Supervisor)
   end

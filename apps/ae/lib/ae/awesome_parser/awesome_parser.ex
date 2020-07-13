@@ -76,7 +76,7 @@ defmodule Ae.AwesomeParser do
      }}
   end
 
-  @raw_lib_regexp ~r/^\*\ \[(?<name>.*)\]\((?<link>(https:\/\/github.com\/(?<owner>.*)\/(?<repo>.*))|.*)\)\ \-\ (?<description>.*)/
+  @raw_lib_regexp ~r/^\*\ \[(?<name>[^\]]*)\]\((?<link>(https:\/\/github.com\/(?<owner>.*)\/(?<repo>.*))|.*)\)\ \-\ (?<description>.*)/
   @spec parse_lib(raw_lib :: binary()) :: {:ok, map} | {:error, :parse_lib}
   def parse_lib(raw_lib) do
     case Regex.named_captures(@raw_lib_regexp, raw_lib) do

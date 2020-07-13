@@ -22,7 +22,7 @@ defmodule Ae.Libs do
   @spec create_or_update_library_for_category(category :: Category.t(), attrs :: map()) ::
           {:ok, Library.t()} | {:error, Ecto.Changeset.t()}
   def create_or_update_library_for_category(
-        %Category{id: category_id} = category,
+        %Category{id: category_id} = _category,
         %{"name" => name} = attrs
       ) do
     library =
