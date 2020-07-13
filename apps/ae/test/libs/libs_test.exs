@@ -84,4 +84,26 @@ defmodule Ae.LibsTest do
              )
     end
   end
+
+  describe "find_library_by_id/1" do
+    test "success" do
+      %{id: id} = insert(:library)
+      assert match?({:ok, %Ae.Libs.Library{}}, Libs.find_library_by_id(id))
+    end
+
+    test "fail" do
+      assert {:error, :not_found} == Libs.find_library_by_id(100_500)
+    end
+  end
+
+  describe("update_library/2") do
+    test "succes" do
+      library = insert(:library)
+
+      assert match?(
+               {:ok, %Ae.Libs.Library{}},
+               Libs.update_library(library, %{last_commited_at: DateTime.utc_now()})
+             )
+    end
+  end
 end

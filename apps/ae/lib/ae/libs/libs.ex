@@ -35,4 +35,20 @@ defmodule Ae.Libs do
     |> Library.changeset(attrs)
     |> Ae.Repo.insert_or_update()
   end
+
+  @spec find_library_by_id(id :: integer()) :: {:ok, Library.t()} | {:error, :not_found}
+  def find_library_by_id(id) do
+    case Ae.Repo.get(Library, id) do
+      nil -> {:error, :not_found}
+      library -> {:ok, library}
+    end
+  end
+
+  @spec update_library(library :: Library.t(), attrs :: map()) ::
+          {:ok, Library.t()} | {:error, Ecto.Changeset.t()}
+  def update_library(library, attrs) do
+    library
+    |> Library.changeset(attrs)
+    |> Ae.Repo.update()
+  end
 end

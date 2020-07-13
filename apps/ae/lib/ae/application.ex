@@ -6,14 +6,11 @@ defmodule Ae.Application do
   use Application
 
   def start(_type, _args) do
-    base = [
+    children = [
       Ae.Repo,
-      {Phoenix.PubSub, name: Ae.PubSub}
+      {Phoenix.PubSub, name: Ae.PubSub},
+      {Oban, Application.get_env(:ae, Oban)}
     ]
-
-    oban = if System.get_env("WITH_OBAN"), do: [{Oban, Application.get_env(:ae, Oban)}], else: []
-
-    children = base ++ oban
 
     Supervisor.start_link(children, strategy: :one_for_one, name: Ae.Supervisor)
   end

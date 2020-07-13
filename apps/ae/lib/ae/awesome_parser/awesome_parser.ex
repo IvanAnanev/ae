@@ -16,6 +16,18 @@ defmodule Ae.AwesomeParser do
     end
   end
 
+  @spec parse_repo_info(owner :: binary(), repo :: binary()) :: {:ok, map()} | {:error, any()}
+  def parse_repo_info(owner, repo) do
+    with {:ok, body} <- @github_api.repo_get(owner, repo) do
+      {:ok,
+       %{
+         last_commited_at: body["pushed_at"],
+         github_created_at: body["created_at"],
+         stars: body["stargazers_count"]
+       }}
+    end
+  end
+
   @category_name_regexp ~r/(^\-\ \[)|(\]\(.*\))/
   @spec parse_categories(
           readme_md :: Path.t(),
@@ -83,6 +95,13 @@ defmodule Ae.AwesomeParser do
       nil -> {:error, :parse_lib}
       map -> {:ok, map}
     end
+  end
+
+  @spec async_parse_repo(library :: Ae.Libs.Library.t()) :: {:ok, Oban.Job.t()}
+  def async_parse_repo(%Ae.Libs.Library{id: id}) do
+    %{id: id}
+    |> Ae.AwesomeParser.Workers.ParseRepo.new()
+    |> Oban.insert()
   end
 
   defp stream_and_trim(readme_md) do

@@ -16,6 +16,19 @@ defmodule Ae.AwesomeParserTest do
     end
   end
 
+  describe "parse_repo_info/2" do
+    test "success" do
+      time = DateTime.utc_now() |> to_string()
+
+      Ae.AwesomeParser.GithubApi.Mock
+      |> expect(:repo_get, fn _owner, _repo ->
+        {:ok, %{"pushed_at" => time, "created_at" => time, "stargazers_count" => 100}}
+      end)
+
+      assert match?({:ok, _}, AwesomeParser.parse_repo_info("owner", "repo"))
+    end
+  end
+
   @readme_path "test/examples/awesome_elixir_test.md"
   @start_anchor "- [Awesome Elixir](#awesome-elixir)"
   @finish_anchor "- [Resources](#resources)"
@@ -77,6 +90,15 @@ defmodule Ae.AwesomeParserTest do
 
     test "fail" do
       assert {:error, :parse_lib} == AwesomeParser.parse_lib("no pattern string")
+    end
+  end
+
+  describe "async_parse_repo/1" do
+    test "success" do
+      library = insert(:library)
+
+      AwesomeParser.async_parse_repo(library)
+      assert_enqueued(worker: Ae.AwesomeParser.Workers.ParseRepo, args: %{id: library.id})
     end
   end
 end
