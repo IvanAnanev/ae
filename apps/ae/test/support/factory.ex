@@ -9,4 +9,14 @@ defmodule Ae.Factory do
       description: sequence("Category description")
     }
   end
+
+  def library_factory do
+    %Ae.Libs.Library{
+      category: build(:category),
+      name: sequence("library"),
+      description: sequence("Library description"),
+      link: sequence("https://some.com/link"),
+      store_type: :github
+    }
+  end
 end

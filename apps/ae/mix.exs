@@ -43,7 +43,8 @@ defmodule Ae.MixProject do
       {:tentacat, "~> 2.0"},
       {:briefly, "~> 0.3"},
       {:mox, "~> 0.5", only: :test},
-      {:ex_machina, "~> 2.4", only: :test}
+      {:ex_machina, "~> 2.4", only: :test},
+      {:ecto_enum, "~> 1.4.0"}
     ]
   end
 

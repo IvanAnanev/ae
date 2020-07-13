@@ -3,7 +3,7 @@ defmodule Ae.Libs do
   Libs context.
   """
 
-  alias Ae.Libs.Category
+  alias Ae.Libs.{Category, Library}
 
   @spec create_or_update_category(category_name :: binary(), attrs :: map()) ::
           {:ok, Categoty.t()} | {:error, Ecto.Changeset.t()}
@@ -16,6 +16,23 @@ defmodule Ae.Libs do
 
     category
     |> Category.changeset(attrs)
+    |> Ae.Repo.insert_or_update()
+  end
+
+  @spec create_or_update_library_for_category(category :: Category.t(), attrs :: map()) ::
+          {:ok, Library.t()} | {:error, Ecto.Changeset.t()}
+  def create_or_update_library_for_category(
+        %Category{id: category_id} = category,
+        %{"name" => name} = attrs
+      ) do
+    library =
+      case Ae.Repo.get_by(Library, category_id: category_id, name: name) do
+        nil -> %Library{category_id: category_id}
+        library -> library
+      end
+
+    library
+    |> Library.changeset(attrs)
     |> Ae.Repo.insert_or_update()
   end
 end
