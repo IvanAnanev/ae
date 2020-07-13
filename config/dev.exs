@@ -77,7 +77,7 @@ config :phoenix, :stacktrace_depth, 20
 
 config :mix_test_watch,
   tasks: [
-    "format --check-formatted",
+    "format",
     "credo",
     "test"
   ],

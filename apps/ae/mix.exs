@@ -42,7 +42,8 @@ defmodule Ae.MixProject do
       {:jason, "~> 1.0"},
       {:tentacat, "~> 2.0"},
       {:briefly, "~> 0.3"},
-      {:mox, "~> 0.5", only: :test}
+      {:mox, "~> 0.5", only: :test},
+      {:ex_machina, "~> 2.4", only: :test}
     ]
   end
 
