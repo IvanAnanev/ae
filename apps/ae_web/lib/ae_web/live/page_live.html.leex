@@ -1,48 +1,53 @@
-<section class="phx-hero">
-  <h1><%= gettext "Welcome to %{name}!", name: "Phoenix" %></h1>
-  <p>Peace-of-mind from prototype to production</p>
+<button phx-click="change_min_stars" phx-value-stars="all"> All</button>
+<button phx-click="change_min_stars" phx-value-stars=10> >= 10 ⭐</button>
+<button phx-click="change_min_stars" phx-value-stars=50> >= 50 ⭐</button>
+<button phx-click="change_min_stars" phx-value-stars=100> >= 100 ⭐</button>
+<button phx-click="change_min_stars" phx-value-stars=500> >= 500 ⭐ </button>
+<button phx-click="change_min_stars" phx-value-stars=1000> >= 1000 ⭐</button>
 
-  <form phx-change="suggest" phx-submit="search">
-    <input type="text" name="q" value="<%= @query %>" placeholder="Live dependency search" list="results" autocomplete="off"/>
-    <datalist id="results">
-      <%= for {app, _vsn} <- @results do %>
-        <option value="<%= app %>"><%= app %></option>
-      <% end %>
-    </datalist>
-    <button type="submit" phx-disable-with="Searching...">Go to Hexdocs</button>
-  </form>
-</section>
+<h2>Categories</h2>
 
 <section class="row">
-  <article class="column">
-    <h2>Resources</h2>
-    <ul>
-      <li>
-        <a href="https://hexdocs.pm/phoenix/overview.html">Guides &amp; Docs</a>
-      </li>
-      <li>
-        <a href="https://github.com/phoenixframework/phoenix">Source</a>
-      </li>
-      <li>
-        <a href="https://github.com/phoenixframework/phoenix/blob/v1.5/CHANGELOG.md">v1.5 Changelog</a>
-      </li>
-    </ul>
-  </article>
-  <article class="column">
-    <h2>Help</h2>
-    <ul>
-      <li>
-        <a href="https://elixirforum.com/c/phoenix-forum">Forum</a>
-      </li>
-      <li>
-        <a href="https://webchat.freenode.net/?channels=elixir-lang">#elixir-lang on Freenode IRC</a>
-      </li>
-      <li>
-        <a href="https://twitter.com/elixirphoenix">Twitter @elixirphoenix</a>
-      </li>
-      <li>
-        <a href="https://elixir-slackin.herokuapp.com/">Elixir on Slack</a>
-      </li>
-    </ul>
-  </article>
+  <%= for part <- split(@categories) do %>
+    <article class="column">
+      <ul>
+        <%= for category <- part do %>
+          <li><%= link(category_with_lib_count(category), to: "#" <> anchor(category.name)) %></li>
+        <% end %>
+      </ul>
+    </article>
+  <% end %>
 </section>
+
+<%= for category <- @categories do %>
+  <h3 id=<%= anchor(category.name) %>><%= category.name %></h2>
+  <p><%= raw category.description %></p>
+  <table>
+    <tr>
+      <th>Library</th>
+      <th>Stars</th>
+      <th>Days ago</th>
+      <th>Created on</th>
+    </tr>
+    <%= for library <- category.libraries do %>
+      <tr>
+        <td>
+          <%= link(library.name, to: library.link) %>
+          |
+          <%= library.store_type  %>
+          <br>
+          <%= raw library.description %>
+        </td>
+        <%= if library.store_type == :github do %>
+          <td><%= library.stars %> ⭐</td>
+          <td><%= days_ago(library.last_commited_at) %> 📅</td>
+          <td><%= created_on(library.github_created_at) %></td>
+        <% else %>
+          <td></td>
+          <td></td>
+          <td></td>
+        <% end %>
+      </tr>
+    <% end %>
+  </table>
+<% end %>

@@ -10,6 +10,7 @@ defmodule Ae.Libs.Category do
   schema "categories" do
     field :name, :string
     field :description, :string
+    has_many :libraries, Ae.Libs.Library
 
     timestamps()
   end

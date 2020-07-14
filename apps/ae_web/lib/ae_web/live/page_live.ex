@@ -1,39 +1,57 @@
 defmodule AeWeb.PageLive do
+  @moduledoc false
   use AeWeb, :live_view
 
   @impl true
-  def mount(_params, _session, socket) do
-    {:ok, assign(socket, query: "", results: %{})}
+  def handle_event("change_min_stars", %{"stars" => "all"}, socket) do
+    {:noreply, push_patch(socket, to: "/", replace: true)}
   end
 
   @impl true
-  def handle_event("suggest", %{"q" => query}, socket) do
-    {:noreply, assign(socket, results: search(query), query: query)}
+  def handle_event("change_min_stars", %{"stars" => min_stars}, socket) do
+    {:noreply, push_patch(socket, to: "/?min_stars=#{min_stars}", replace: true)}
   end
 
   @impl true
-  def handle_event("search", %{"q" => query}, socket) do
-    case search(query) do
-      %{^query => vsn} ->
-        {:noreply, redirect(socket, external: "https://hexdocs.pm/#{query}/#{vsn}")}
-
-      _ ->
-        {:noreply,
-         socket
-         |> put_flash(:error, "No dependencies found matching \"#{query}\"")
-         |> assign(results: %{}, query: query)}
-    end
+  def handle_params(%{"min_stars" => min_stars}, _, socket) do
+    categories = Ae.Libs.filtered_list_categories_with_libraries(min_stars)
+    {:noreply, assign(socket, categories: categories)}
   end
 
-  defp search(query) do
-    if not AeWeb.Endpoint.config(:code_reloader) do
-      raise "action disabled when not in development"
-    end
+  @impl true
+  def handle_params(%{}, _, socket) do
+    categories = Ae.Libs.list_categories_with_libraries()
+    {:noreply, assign(socket, categories: categories)}
+  end
 
-    for {app, desc, vsn} <- Application.started_applications(),
-        app = to_string(app),
-        String.starts_with?(app, query) and not List.starts_with?(desc, ~c"ERTS"),
-        into: %{},
-        do: {app, vsn}
+  def category_with_lib_count(category) do
+    "#{category.name} (#{length(category.libraries)})"
+  end
+
+  @spec anchor(binary()) :: binary()
+  def anchor(category_name) do
+    category_name
+    |> String.downcase()
+    |> String.replace(~r/\/|\(|\)/, "")
+    |> String.replace(" ", "-")
+  end
+
+  @spec days_ago(Datetime.t()) :: binary()
+  def days_ago(nil), do: "-"
+
+  def days_ago(datetime) do
+    DateTime.utc_now()
+    |> DateTime.diff(datetime)
+    |> div(24 * 60 * 60)
+  end
+
+  def created_on(nil), do: "-"
+  def created_on(datetime), do: DateTime.to_date(datetime)
+
+  def split(arr) do
+    length = length(arr)
+    part_size = div(length, 2) + rem(length, 2)
+    {part_1, part_2} = Enum.split(arr, part_size)
+    [part_1, part_2]
   end
 end

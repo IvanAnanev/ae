@@ -2,6 +2,7 @@ defmodule Ae.Libs do
   @moduledoc """
   Libs context.
   """
+  import Ecto.Query, warn: false
 
   alias Ae.Libs.{Category, Library}
 
@@ -50,5 +51,37 @@ defmodule Ae.Libs do
     library
     |> Library.changeset(attrs)
     |> Ae.Repo.update()
+  end
+
+  @spec list_categories_with_libraries() :: [Category.t()]
+  def list_categories_with_libraries do
+    libraries_query =
+      from l in Library,
+        order_by: l.name
+
+    query =
+      from c in Category,
+        preload: [libraries: ^libraries_query],
+        order_by: c.name
+
+    Ae.Repo.all(query)
+  end
+
+  @spec filtered_list_categories_with_libraries(min_stars :: integer()) :: [Category.t()]
+  def filtered_list_categories_with_libraries(min_stars) do
+    libraries_query =
+      from l in Library,
+        where: l.stars >= ^min_stars and l.store_type == "github",
+        order_by: l.name
+
+    query =
+      from c in Category,
+        left_join: l in assoc(c, :libraries),
+        where: l.stars >= ^min_stars and l.store_type == "github",
+        distinct: c.name,
+        preload: [libraries: ^libraries_query],
+        order_by: c.name
+
+    Ae.Repo.all(query)
   end
 end
